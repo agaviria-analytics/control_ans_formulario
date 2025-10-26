@@ -10,7 +10,7 @@ import os
 SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), '..', 'generated-tine-472900-u7-6afc104f3621.json')
 
 # ID de la carpeta en Drive (de tu enlace de Google Drive)
-FOLDER_ID = "1-Rg12PF0j59-sLYkjn3e_Hy9lcwxF5uz"
+FOLDER_ID = "1d8kNCq2Db0qJBmEwdfZEuxk0SzhguBCI"
 
 # ------------------------------------------------------------
 # CONEXIÓN CON GOOGLE DRIVE
