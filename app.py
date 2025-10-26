@@ -55,7 +55,11 @@ def formulario():
             flash(f"❌ Pedido {pedido} no existe en FENIX_ANS. Verifique nuevamente.", "danger")
             return redirect(url_for("formulario"))
 
-        # 🔸 Procesar múltiples evidencias (PDFs o imágenes)
+        # ------------------------------------------------------------
+        # SUBIDA AUTOMÁTICA DE EVIDENCIAS A GOOGLE DRIVE
+        # ------------------------------------------------------------
+        from google_drive_upload import subir_a_drive  # Importa la función del otro script
+
         evidencias = request.files.getlist("evidencias")
         nombres_evidencias = []
 
@@ -63,20 +67,34 @@ def formulario():
             if not archivo.filename:
                 continue
 
-            # Extensión del archivo
             ext = archivo.filename.split(".")[-1].lower()
-
-            # Validar tipo permitido
             if ext not in ["pdf", "jpg", "jpeg", "png"]:
                 flash(f"⚠ Tipo de archivo no permitido: {archivo.filename}", "warning")
                 continue
 
-            # Generar nombre único y guardar
+            # Nombre temporal local
             nombre_archivo = f"{pedido}_{i}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
-            archivo.save(app.config['UPLOAD_FOLDER'] / nombre_archivo)
-            nombres_evidencias.append(nombre_archivo)
+            ruta_local = app.config['UPLOAD_FOLDER'] / nombre_archivo
+            archivo.save(ruta_local)
 
-        # 🔸 Registrar fila
+            # Subir al Google Drive
+            try:
+                drive_id = subir_a_drive(str(ruta_local), nombre_archivo)
+                link_drive = f"https://drive.google.com/file/d/{drive_id}/view"
+                nombres_evidencias.append(link_drive)
+            except Exception as e:
+                print(f"⚠ Error al subir {nombre_archivo}: {e}")
+                nombres_evidencias.append(f"Error al subir {nombre_archivo}")
+
+            # Eliminar archivo local (ya subido)
+            try:
+                os.remove(ruta_local)
+            except:
+                pass
+
+        # ------------------------------------------------------------
+        # REGISTRO DE ENVÍO EN EXCEL
+        # ------------------------------------------------------------
         fila = resultado.iloc[0]
         registro = {
             "fecha_envio": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -91,11 +109,11 @@ def formulario():
             "evidencias": ", ".join(nombres_evidencias) if nombres_evidencias else "Sin archivos"
         }
 
-        # 🔸 Guardar registro
+        # Guardar registro
         df_final = pd.concat([df_registros, pd.DataFrame([registro])], ignore_index=True)
         df_final.to_excel(ruta_excel, index=False)
 
-        # 🔸 Confirmar al usuario
+        # Confirmar al usuario
         flash(f"✅ Registro guardado correctamente — Pedido {pedido}", "success")
         return redirect(url_for("formulario"))
 
@@ -144,4 +162,3 @@ if __name__ == "__main__":
     print("Contenido real de esa carpeta:")
     print(os.listdir(app.static_folder))
     app.run(debug=True, host="0.0.0.0")
-
