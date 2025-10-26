@@ -21,7 +21,7 @@ app.config['UPLOAD_FOLDER'].mkdir(parents=True, exist_ok=True)
 # ------------------------------------------------------------
 # CARGA ARCHIVO FENIX
 # ------------------------------------------------------------
-ruta_fenix = base_dir.parent / "data_clean" / "FENIX_ANS.xlsx"
+ruta_fenix = base_dir / "FENIX_ANS.xlsx"
 if ruta_fenix.exists():
     df_fenix = pd.read_excel(ruta_fenix)
     df_fenix.columns = df_fenix.columns.str.strip().str.upper()
