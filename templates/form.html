@@ -105,33 +105,25 @@
                         <option value="No aplica">No aplica</option>
                     </select>
                 </div>
+                        <!-- 📸 Bloque mejorado de evidencias -->
+                                <div id="bloqueArchivos">
+                                    <div class="mb-3">
+                                        <label class="form-label">Subir evidencias (PDF o imágenes)</label>
 
-                <!-- 📸 Bloque mejorado de evidencias -->
-                <div id="bloqueArchivos">
-                    <!-- Subir evidencia PDF -->
-                    <div class="mb-3">
-                        <label class="form-label">Subir evidencia PDF</label>
-                        <input type="file" name="archivo_pdf" class="form-control" accept=".pdf,application/pdf">
-                    </div>
+                                        <!-- Campo único: permite PDF o imágenes -->
+                                        <input type="file"
+                                            name="evidencias"
+                                            id="evidencias"
+                                            class="form-control mb-2"
+                                            accept=".pdf,application/pdf,image/*"
+                                            capture="environment"
+                                            multiple>
 
-                    <!-- Contenedor dinámico de imágenes -->
-                    <div class="mb-3">
-                        <label class="form-label">Tomar o elegir imágenes</label>
-
-                        <div id="contenedor-imagenes">
-                            <input type="file" name="imagenes" class="form-control mb-2" accept="image/*" capture="environment">
-                        </div>
-
-                        <button type="button" id="agregarImagen" class="btn btn-outline-secondary btn-sm">
-                            + Agregar otra imagen
-                        </button>
-
-                        <small class="text-muted d-block mt-1">
-                            📸 Puede tomar varias fotos seguidas o elegir varias desde la galería antes de enviar.
-                        </small>
-                    </div>
-                </div>
-
+                                        <small class="text-muted d-block mt-1">
+                                            📸 Puede tomar fotos con la cámara o elegir varias imágenes / PDF desde la galería antes de enviar.
+                                        </small>
+                                    </div>
+                                </div>
                 <!-- ✅ Botones finales -->
                 <div class="d-flex justify-content-between flex-wrap gap-2">
                     <button type="submit" class="btn btn-success flex-fill">Enviar Registro</button>

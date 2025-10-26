@@ -55,22 +55,26 @@ def formulario():
             flash(f"❌ Pedido {pedido} no existe en FENIX_ANS. Verifique nuevamente.", "danger")
             return redirect(url_for("formulario"))
 
-        # 🔸 Procesar archivos
-        archivo_pdf = request.files.get("archivo_pdf")
-        nombre_pdf = None
-        if archivo_pdf and archivo_pdf.filename:
-            nombre_pdf = f"{pedido}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-            archivo_pdf.save(app.config['UPLOAD_FOLDER'] / nombre_pdf)
+        # 🔸 Procesar múltiples evidencias (PDFs o imágenes)
+        evidencias = request.files.getlist("evidencias")
+        nombres_evidencias = []
 
-        imagenes = request.files.getlist("imagenes")
-        nombres_imagenes = []
-        for i, imagen in enumerate(imagenes, start=1):
-            if imagen.filename:
-                ext = imagen.filename.split(".")[-1].lower()
-                if ext in ["jpg", "jpeg", "png"]:
-                    nombre_img = f"{pedido}_{i}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
-                    imagen.save(app.config['UPLOAD_FOLDER'] / nombre_img)
-                    nombres_imagenes.append(nombre_img)
+        for i, archivo in enumerate(evidencias, start=1):
+            if not archivo.filename:
+                continue
+
+            # Extensión del archivo
+            ext = archivo.filename.split(".")[-1].lower()
+
+            # Validar tipo permitido
+            if ext not in ["pdf", "jpg", "jpeg", "png"]:
+                flash(f"⚠ Tipo de archivo no permitido: {archivo.filename}", "warning")
+                continue
+
+            # Generar nombre único y guardar
+            nombre_archivo = f"{pedido}_{i}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
+            archivo.save(app.config['UPLOAD_FOLDER'] / nombre_archivo)
+            nombres_evidencias.append(nombre_archivo)
 
         # 🔸 Registrar fila
         fila = resultado.iloc[0]
@@ -84,8 +88,7 @@ def formulario():
             "estado_campo": estado,
             "metodo_envio": request.form.get("metodo_envio", ""),
             "estado_fenix": fila.get("ESTADO", ""),
-            "pdf": nombre_pdf or "Sin archivo",
-            "imagenes": ", ".join(nombres_imagenes) if nombres_imagenes else "Sin imágenes"
+            "evidencias": ", ".join(nombres_evidencias) if nombres_evidencias else "Sin archivos"
         }
 
         # 🔸 Guardar registro
@@ -141,3 +144,4 @@ if __name__ == "__main__":
     print("Contenido real de esa carpeta:")
     print(os.listdir(app.static_folder))
     app.run(debug=True, host="0.0.0.0")
+
